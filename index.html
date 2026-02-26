@@ -111,7 +111,10 @@
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 14px 16px;
+      margin-bottom: 10px;
     }
+
+    .info-card:last-child { margin-bottom: 0; }
 
     .info-label {
       font-size: 0.65rem;
@@ -157,13 +160,16 @@
       font-weight: 600;
     }
 
-    .marker-pin {
-      width: 30px; height: 30px;
-      background: var(--accent);
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      border: 3px solid #fff;
-      box-shadow: 0 0 0 4px rgba(0,255,136,0.25);
+    /* Flecha direccional */
+    .marker-arrow {
+      width: 0;
+      height: 0;
+      border-left: 11px solid transparent;
+      border-right: 11px solid transparent;
+      border-bottom: 28px solid #00ff88;
+      filter: drop-shadow(0 0 8px rgba(0,255,136,0.7));
+      transform-origin: 50% 75%;
+      transition: transform 0.6s ease;
     }
 
     #loading {
@@ -189,12 +195,8 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .loading-text {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
+    .loading-text { font-size: 0.75rem; color: var(--muted); }
 
-    /* Mobile */
     @media (max-width: 768px) {
       body { height: auto; overflow: auto; }
       .main { flex-direction: column; overflow: visible; }
@@ -230,12 +232,12 @@
       <div>
         <div class="section-label">Ubicacion en tiempo real</div>
 
-        <div class="info-card" style="margin-bottom: 10px;">
+        <div class="info-card">
           <div class="info-label">Latitud</div>
           <div class="info-value" id="latVal">Esperando señal...</div>
         </div>
 
-        <div class="info-card" style="margin-bottom: 10px;">
+        <div class="info-card">
           <div class="info-label">Longitud</div>
           <div class="info-value" id="lonVal">Esperando señal...</div>
         </div>
@@ -286,8 +288,9 @@
 
   map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
+  // Marcador flecha
   const el = document.createElement('div');
-  el.className = 'marker-pin';
+  el.className = 'marker-arrow';
 
   const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
     .setLngLat([-68.1239, -16.4809])
@@ -302,20 +305,22 @@
       if (!doc.exists) return;
 
       const data = doc.data();
-      const lat  = data.latitud;
-      const lon  = data.longitud;
-      const hora = data.hora?.toDate ? data.hora.toDate() : new Date();
+      const lat     = data.latitud;
+      const lon     = data.longitud;
+      const bearing = data.bearing || 0; // 0 = norte si no hay bearing aun
+      const hora    = data.hora?.toDate ? data.hora.toDate() : new Date();
 
-      // Ocultar mensaje de sin señal
+      // Ocultar mensaje sin señal
       document.getElementById('noSignal').style.display = 'none';
 
-      // Actualizar datos
+      // Actualizar panel
       document.getElementById('latVal').textContent  = lat.toFixed(6);
       document.getElementById('lonVal').textContent  = lon.toFixed(6);
       document.getElementById('timeVal').textContent = hora.toLocaleTimeString('es-MX');
 
-      // Mover marcador sin cambiar zoom
+      // Mover marcador y rotar flecha
       marker.setLngLat([lon, lat]);
+      el.style.transform = `rotate(${bearing}deg)`;
       map.easeTo({ center: [lon, lat], duration: 800 });
 
       // Estado en vivo
