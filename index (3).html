@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rastreo en Tiempo Real</title>
+
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet"/>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #1e1e2e;
+      --accent: #00ff88;
+      --accent2: #0088ff;
+      --text: #e8e8f0;
+      --muted: #555570;
+    }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .logo span { color: var(--text); }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 14px;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+    }
+    .dot.live { background: var(--accent); animation: pulse 1.5s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
+      50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(0,255,136,0); }
+    }
+
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    #map {
+      flex: 1;
+      position: relative;
+    }
+
+    .panel {
+      width: 300px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .panel-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .coord-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .coord-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .coord-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .coord-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .time-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .time-icon { font-size: 1.2rem; }
+
+    .time-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .time-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+
+    .historial-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 20px 20px;
+    }
+
+    .historial-list::-webkit-scrollbar { width: 4px; }
+    .historial-list::-webkit-scrollbar-track { background: transparent; }
+    .historial-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .historial-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .historial-item:last-child { border-bottom: none; }
+
+    .h-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent2);
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .h-coords {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .h-time {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .marker-pin {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 4px rgba(0,255,136,0.3), 0 4px 20px rgba(0,255,136,0.5);
+      animation: markerPulse 2s infinite;
+    }
+
+    @keyframes markerPulse {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(0,255,136,0.3), 0 4px 20px rgba(0,255,136,0.5); }
+      50%       { box-shadow: 0 0 0 10px rgba(0,255,136,0.1), 0 4px 30px rgba(0,255,136,0.7); }
+    }
+
+    #loading {
+      position: absolute;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 100;
+      transition: opacity 0.5s;
+    }
+
+    #loading.hidden { opacity: 0; pointer-events: none; }
+
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">LIVE<span>TRACK</span></div>
+  <div class="status-pill">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText">Conectando...</span>
+  </div>
+</header>
+
+<div class="main">
+  <div id="map">
+    <div id="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">Cargando mapa...</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-section">
+      <div class="panel-title">📍 Posición actual</div>
+      <div class="coord-grid">
+        <div class="coord-card">
+          <div class="coord-label">Latitud</div>
+          <div class="coord-value" id="latVal">—</div>
+        </div>
+        <div class="coord-card">
+          <div class="coord-label">Longitud</div>
+          <div class="coord-value" id="lonVal">—</div>
+        </div>
+      </div>
+      <div class="time-card">
+        <div class="time-icon">🕐</div>
+        <div>
+          <div class="time-label">Última actualización</div>
+          <div class="time-value" id="timeVal">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section" style="padding-bottom:12px;">
+      <div class="panel-title">🗂 Historial de posiciones</div>
+    </div>
+    <div class="historial-list" id="historialList">
+      <div class="no-data">Esperando datos<br>del dispositivo...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ════════════════════════════════════════════════
+  // 🔑 TU CONFIGURACIÓN REAL
+  // ════════════════════════════════════════════════
+
+  const MAPBOX_TOKEN = "pk.eyJ1Ijoia2F0Zmlwb2wiLCJhIjoiY21tMjd0eTd1MDRvMjJxb2lydnFvZDg5biJ9.ta7YuRSTXUkBQ0OtrXRBmQ";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDjMPXFeeGnPJsHQFfv4w78Axs-VYY70rQ",
+    authDomain: "proyectomapbox-74728.firebaseapp.com",
+    databaseURL: "https://proyectomapbox-74728-default-rtdb.firebaseio.com",
+    projectId: "proyectomapbox-74728",
+    storageBucket: "proyectomapbox-74728.firebasestorage.app",
+    messagingSenderId: "957759450960",
+    appId: "1:957759450960:web:af91e7db6fdf21da1f4655",
+    measurementId: "G-SVEXN4JH13"
+  };
+
+  // ════════════════════════════════════════════════
+  // INICIALIZACIÓN
+  // ════════════════════════════════════════════════
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  mapboxgl.accessToken = MAPBOX_TOKEN;
+
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/dark-v11',
+    center: [-68.1239, -16.4809],
+    zoom: 15
+  });
+
+  // Controles de zoom visibles en pantalla
+  map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+
+  // Marcador personalizado
+  const el = document.createElement('div');
+  el.className = 'marker-pin';
+
+  const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+    .setLngLat([-68.1239, -16.4809])
+    .addTo(map);
+
+  map.on('load', () => {
+    document.getElementById('loading').classList.add('hidden');
+  });
+
+  // ════════════════════════════════════════════════
+  // TIEMPO REAL — escucha cambios de Firebase
+  // ════════════════════════════════════════════════
+
+  let historialItems = [];
+
+  db.collection("Rastreo").doc("Mi_Celular")
+    .onSnapshot((doc) => {
+      if (!doc.exists) return;
+
+      const data = doc.data();
+      const lat  = data.latitud;
+      const lon  = data.longitud;
+      const hora = data.hora?.toDate ? data.hora.toDate() : new Date();
+
+      // Actualizar panel lateral
+      document.getElementById('latVal').textContent  = lat.toFixed(6);
+      document.getElementById('lonVal').textContent  = lon.toFixed(6);
+      document.getElementById('timeVal').textContent = hora.toLocaleTimeString('es-MX');
+
+      // Mover marcador y cámara suavemente
+      marker.setLngLat([lon, lat]);
+      map.flyTo({ center: [lon, lat], zoom: 15, speed: 0.8 });
+
+      // Estado EN VIVO
+      document.getElementById('statusDot').classList.add('live');
+      document.getElementById('statusText').textContent = 'EN VIVO';
+
+      // Agregar al historial
+      agregarAlHistorial(lat, lon, hora);
+
+    }, (error) => {
+      console.error("Error Firebase:", error);
+      document.getElementById('statusText').textContent = 'Sin conexión';
+    });
+
+  // ════════════════════════════════════════════════
+  // HISTORIAL
+  // ════════════════════════════════════════════════
+
+  function agregarAlHistorial(lat, lon, hora) {
+    const ultimo = historialItems[0];
+    if (ultimo && ultimo.lat === lat && ultimo.lon === lon) return;
+
+    historialItems.unshift({ lat, lon, hora });
+    if (historialItems.length > 50) historialItems.pop();
+    renderHistorial();
+  }
+
+  function renderHistorial() {
+    const lista = document.getElementById('historialList');
+    if (historialItems.length === 0) {
+      lista.innerHTML = '<div class="no-data">Esperando datos<br>del dispositivo...</div>';
+      return;
+    }
+    lista.innerHTML = historialItems.map((item, i) => `
+      <div class="historial-item">
+        <div class="h-dot" style="${i === 0 ? 'background: var(--accent)' : ''}"></div>
+        <div>
+          <div class="h-coords">${item.lat.toFixed(6)}, ${item.lon.toFixed(6)}</div>
+          <div class="h-time">${item.hora.toLocaleTimeString('es-MX')}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+</script>
+
+</body>
+</html>
