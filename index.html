@@ -1,330 +1,199 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Vigia - Rastreo en Tiempo Real</title>
-<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet"/>
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vigia - Rastreo en Tiempo Real</title>
 
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet"/>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-
       --bg: #0a0a0f;
-
       --surface: #12121a;
-
       --border: #1e1e2e;
-
       --accent: #00ff88;
-
       --text: #e8e8f0;
-
       --muted: #7f7f9a;
-
     }
 
     body {
-
       font-family: 'Inter', sans-serif;
-
       background: var(--bg);
-
       color: var(--text);
-
       height: 100vh;
-
       display: flex;
-
       flex-direction: column;
-
     }
 
     header {
-
       display: flex;
-
       align-items: center;
-
       justify-content: space-between;
-
       padding: 14px 24px;
-
       background: var(--surface);
-
       border-bottom: 1px solid var(--border);
-
       flex-shrink: 0;
-
     }
 
     .logo {
-
       font-size: 1.2rem;
-
       font-weight: 700;
-
       color: var(--accent);
-
       letter-spacing: 0.05em;
-
     }
 
     .badge {
-
       display: flex;
-
       align-items: center;
-
       gap: 7px;
-
       font-size: 0.75rem;
-
       font-weight: 500;
-
       color: var(--muted);
-
       background: var(--bg);
-
       border: 1px solid var(--border);
-
       border-radius: 20px;
-
       padding: 5px 14px;
-
     }
 
     .dot {
-
       width: 8px;
-
       height: 8px;
-
       border-radius: 50%;
-
       background: var(--muted);
-
     }
 
     .dot.live {
-
       background: var(--accent);
-
       animation: blink 1.5s infinite;
-
     }
 
     @keyframes blink {
-
       0%, 100% { opacity: 1; }
-
       50% { opacity: 0.4; }
-
     }
 
     .main {
-
       display: flex;
-
       flex: 1;
-
       overflow: hidden;
-
     }
 
     #map { flex: 1; position: relative; }
 
     .panel {
-
       width: 270px;
-
       background: var(--surface);
-
       border-left: 1px solid var(--border);
-
       display: flex;
-
       flex-direction: column;
-
       justify-content: space-between;
-
       padding: 24px 20px;
-
       flex-shrink: 0;
-
     }
 
     .panel-top { display: flex; flex-direction: column; gap: 14px; }
 
     .section-label {
-
       font-size: 0.68rem;
-
       font-weight: 600;
-
       text-transform: uppercase;
-
       letter-spacing: 0.12em;
-
       color: var(--muted);
-
       margin-bottom: 10px;
-
     }
 
     .info-card {
-
       background: var(--bg);
-
       border: 1px solid var(--border);
-
       border-radius: 10px;
-
       padding: 14px 16px;
-
       margin-bottom: 10px;
-
     }
 
     .info-card:last-child { margin-bottom: 0; }
 
     .info-label {
-
       font-size: 0.65rem;
-
       font-weight: 500;
-
       color: var(--muted);
-
       text-transform: uppercase;
-
       letter-spacing: 0.1em;
-
       margin-bottom: 6px;
-
     }
 
     .info-value {
-
       font-size: 1rem;
-
       font-weight: 600;
-
       color: var(--accent);
-
     }
 
     .info-value.time {
-
       color: var(--text);
-
       font-size: 0.95rem;
-
     }
 
     .no-signal {
-
       text-align: center;
-
       padding: 20px;
-
       color: var(--muted);
-
       font-size: 0.8rem;
-
       line-height: 1.8;
-
       border: 1px dashed var(--border);
-
       border-radius: 10px;
-
     }
 
     .footer {
-
       font-size: 0.68rem;
-
       color: var(--muted);
-
       text-align: center;
-
       padding-top: 16px;
-
       border-top: 1px solid var(--border);
-
       line-height: 1.7;
-
     }
 
     .footer strong {
-
       color: var(--text);
-
       font-weight: 600;
-
     }
 
     /* === MARCADOR CIRCULAR === */
-
     .marker-arrow{
-
       width: 18px;
-
       height: 18px;
-
       background: #00ff88;
-
       border-radius: 50%;
-
       box-shadow: 0 0 10px rgba(0,255,136,0.8);
-
     }
 
     #loading {
-
       position: absolute;
-
       inset: 0;
-
       background: var(--bg);
-
       display: flex;
-
       flex-direction: column;
-
       align-items: center;
-
       justify-content: center;
-
       gap: 14px;
-
       z-index: 100;
-
       transition: opacity 0.5s;
-
     }
 
     #loading.hidden { opacity: 0; pointer-events: none; }
 
     .spinner {
-
       width: 36px;
-
       height: 36px;
-
       border: 3px solid var(--border);
-
       border-top-color: var(--accent);
-
       border-radius: 50%;
-
       animation: spin 0.8s linear infinite;
-
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -332,140 +201,113 @@
     .loading-text { font-size: 0.75rem; color: var(--muted); }
 
     @media (max-width: 768px) {
-
       body { height: auto; overflow: auto; }
-
       .main { flex-direction: column; overflow: visible; }
-
       #map { height: 55vh; flex: none; }
-
       .panel {
-
         width: 100%;
-
         border-left: none;
-
         border-top: 1px solid var(--border);
-
       }
-
     }
-</style>
+  </style>
 </head>
+
 <body>
+
 <header>
-<div class="logo">Vigia</div>
-<div class="badge">
-<div class="dot" id="statusDot"></div>
-<span id="statusText">Conectando...</span>
-</div>
+  <div class="logo">Vigia</div>
+  <div class="badge">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText">Conectando...</span>
+  </div>
 </header>
+
 <div class="main">
-<div id="map">
-<div id="loading">
-<div class="spinner"></div>
-<div class="loading-text">Cargando mapa...</div>
-</div>
-</div>
-<div class="panel">
-<div class="panel-top">
-<div>
-<div class="section-label">Ubicacion en tiempo real</div>
-<div class="info-card">
-<div class="info-label">Latitud</div>
-<div class="info-value" id="latVal">Esperando señal...</div>
-</div>
-<div class="info-card">
-<div class="info-label">Longitud</div>
-<div class="info-value" id="lonVal">Esperando señal...</div>
-</div>
-<div class="info-card">
-<div class="info-label">Ultima actualizacion</div>
-<div class="info-value time" id="timeVal">—</div>
-</div>
-</div>
-<div class="no-signal" id="noSignal">
+  <div id="map">
+    <div id="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">Cargando mapa...</div>
+    </div>
+  </div>
 
+  <div class="panel">
+    <div class="panel-top">
+      <div>
+        <div class="section-label">Ubicacion en tiempo real</div>
+
+        <div class="info-card">
+          <div class="info-label">Latitud</div>
+          <div class="info-value" id="latVal">Esperando señal...</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-label">Longitud</div>
+          <div class="info-value" id="lonVal">Esperando señal...</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-label">Ultima actualizacion</div>
+          <div class="info-value time" id="timeVal">—</div>
+        </div>
+      </div>
+
+      <div class="no-signal" id="noSignal">
         Esperando datos del dispositivo.<br>
-
         Asegurate de que el GPS este activo.
-</div>
-</div>
-<div class="footer">
+      </div>
+    </div>
 
+    <div class="footer">
       Desarrollado por<br>
-<strong>Martin Leaño</strong>
+      <strong>Martin Leaño</strong>
+    </div>
+  </div>
 </div>
-</div>
-</div>
-<script>
 
+<script>
   const MAPBOX_TOKEN = "pk.eyJ1Ijoia2F0Zmlwb2wiLCJhIjoiY21tMjd0eTd1MDRvMjJxb2lydnFvZDg5biJ9.ta7YuRSTXUkBQ0OtrXRBmQ";
 
   const firebaseConfig = {
-
     apiKey: "AIzaSyDjMPXFeeGnPJsHQFfv4w78Axs-VYY70rQ",
-
     authDomain: "proyectomapbox-74728.firebaseapp.com",
-
     databaseURL: "https://proyectomapbox-74728-default-rtdb.firebaseio.com",
-
     projectId: "proyectomapbox-74728",
-
     storageBucket: "proyectomapbox-74728.firebasestorage.app",
-
     messagingSenderId: "957759450960",
-
     appId: "1:957759450960:web:af91e7db6fdf21da1f4655",
-
     measurementId: "G-SVEXN4JH13"
-
   };
 
   firebase.initializeApp(firebaseConfig);
-
   const db = firebase.firestore();
 
   mapboxgl.accessToken = MAPBOX_TOKEN;
 
   const map = new mapboxgl.Map({
-
     container: 'map',
-
     style: 'mapbox://styles/mapbox/dark-v11',
-
     center: [-68.1239, -16.4809],
-
     zoom: 15
-
   });
 
   map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
   const el = document.createElement('div');
-
   el.className = 'marker-arrow';
 
   const marker = new mapboxgl.Marker({
-
     element: el,
-
     anchor: 'center'
-
   })
-
   .setLngLat([-68.1239, -16.4809])
-
   .addTo(map);
 
   map.on('load', () => {
-
     document.getElementById('loading').classList.add('hidden');
-
   });
 
   db.collection("Rastreo").doc("Mi_Celular")
-
     .onSnapshot((doc) => {
 
       if (!doc.exists) return;
@@ -473,35 +315,26 @@
       const data = doc.data();
 
       const lat  = data.latitud;
-
       const lon  = data.longitud;
-
       const hora = data.hora?.toDate ? data.hora.toDate() : new Date();
 
       document.getElementById('noSignal').style.display = 'none';
 
       document.getElementById('latVal').textContent  = lat.toFixed(6);
-
       document.getElementById('lonVal').textContent  = lon.toFixed(6);
-
       document.getElementById('timeVal').textContent = hora.toLocaleTimeString('es-MX');
 
       // SOLO mover el círculo, NO la cámara
-
       marker.setLngLat([lon, lat]);
 
       document.getElementById('statusDot').classList.add('live');
-
       document.getElementById('statusText').textContent = 'En vivo';
 
     }, (error) => {
-
       console.error("Error:", error);
-
       document.getElementById('statusText').textContent = 'Sin conexion';
-
     });
 </script>
+
 </body>
 </html>
- 
