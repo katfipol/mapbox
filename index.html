@@ -13,7 +13,6 @@
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --bg: #0a0a0f;
       --surface: #12121a;
@@ -22,192 +21,51 @@
       --text: #e8e8f0;
       --muted: #7f7f9a;
     }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 24px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .logo {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: 0.05em;
-    }
-
-    .badge {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--muted);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 5px 14px;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--muted);
-    }
-
-    .dot.live {
-      background: var(--accent);
-      animation: blink 1.5s infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .main {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
-
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .logo { font-size: 1.2rem; font-weight: 700; color: var(--accent); letter-spacing: 0.05em; }
+    .badge { display: flex; align-items: center; gap: 7px; font-size: 0.75rem; font-weight: 500; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+    .dot.live { background: var(--accent); animation: blink 1.5s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .main { display: flex; flex: 1; overflow: hidden; }
     #map { flex: 1; position: relative; }
-
-    .panel {
-      width: 270px;
-      background: var(--surface);
-      border-left: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 24px 20px;
-      flex-shrink: 0;
-    }
-
+    .panel { width: 270px; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; padding: 24px 20px; flex-shrink: 0; overflow-y: auto; }
     .panel-top { display: flex; flex-direction: column; gap: 14px; }
-
-    .section-label {
-      font-size: 0.68rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    .info-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-    }
-
+    .section-label { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 10px; }
+    .info-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
     .info-card:last-child { margin-bottom: 0; }
-
-    .info-label {
-      font-size: 0.65rem;
-      font-weight: 500;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 6px;
-    }
-
-    .info-value {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--accent);
-    }
-
-    .info-value.time {
-      color: var(--text);
-      font-size: 0.95rem;
-    }
-
-    .no-signal {
-      text-align: center;
-      padding: 20px;
-      color: var(--muted);
-      font-size: 0.8rem;
-      line-height: 1.8;
-      border: 1px dashed var(--border);
-      border-radius: 10px;
-    }
-
-    .footer {
-      font-size: 0.68rem;
-      color: var(--muted);
-      text-align: center;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      line-height: 1.7;
-    }
-
-    .footer strong {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    .marker-arrow{
-      width: 18px;
-      height: 18px;
-      background: #00ff88;
-      border-radius: 50%;
-      box-shadow: 0 0 10px rgba(0,255,136,0.8);
-    }
-
-    #loading {
-      position: absolute;
-      inset: 0;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      z-index: 100;
-      transition: opacity 0.5s;
-    }
-
+    .info-label { font-size: 0.65rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .info-value { font-size: 1rem; font-weight: 600; color: var(--accent); }
+    .info-value.time { color: var(--text); font-size: 0.95rem; }
+    .info-value.estado-dentro { color: #00ff88; }
+    .info-value.estado-fuera  { color: #ff4444; }
+    .info-value.estado-neutro { color: var(--muted); }
+    .no-signal { text-align: center; padding: 20px; color: var(--muted); font-size: 0.8rem; line-height: 1.8; border: 1px dashed var(--border); border-radius: 10px; }
+    .divider { height: 1px; background: var(--border); margin: 4px 0 14px; }
+    .btn-row { display: flex; gap: 6px; margin-top: 2px; }
+    .btn-geo { flex: 1; padding: 7px 4px; font-size: 0.7rem; font-weight: 600; font-family: 'Inter', sans-serif; border-radius: 7px; border: 1px solid; cursor: pointer; background: transparent; transition: opacity 0.2s; letter-spacing: 0.03em; }
+    .btn-geo:disabled { opacity: 0.3; cursor: default; }
+    .btn-geo.blue  { color: #3399ff; border-color: #3399ff; }
+    .btn-geo.blue:not(:disabled):hover  { background: #3399ff22; }
+    .btn-geo.green { color: #00ff88; border-color: #00ff88; }
+    .btn-geo.green:not(:disabled):hover { background: #00ff8822; }
+    .btn-geo.red   { color: #ff4444; border-color: #ff4444; }
+    .btn-geo.red:not(:disabled):hover   { background: #ff444422; }
+    .instruccion { font-size: 0.72rem; color: var(--muted); text-align: center; padding: 8px; border: 1px dashed var(--border); border-radius: 8px; display: none; line-height: 1.6; }
+    .footer { font-size: 0.68rem; color: var(--muted); text-align: center; padding-top: 16px; border-top: 1px solid var(--border); line-height: 1.7; }
+    .footer strong { color: var(--text); font-weight: 600; }
+    .marker-arrow { width: 18px; height: 18px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px rgba(0,255,136,0.8); }
+    #loading { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 100; transition: opacity 0.5s; }
     #loading.hidden { opacity: 0; pointer-events: none; }
-
-    .spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .loading-text { font-size: 0.75rem; color: var(--muted); }
-
     @media (max-width: 768px) {
       body { height: auto; overflow: auto; }
       .main { flex-direction: column; overflow: visible; }
       #map { height: 55vh; flex: none; }
-      .panel {
-        width: 100%;
-        border-left: none;
-        border-top: 1px solid var(--border);
-      }
+      .panel { width: 100%; border-left: none; border-top: 1px solid var(--border); }
     }
   </style>
 </head>
@@ -232,22 +90,42 @@
 
   <div class="panel">
     <div class="panel-top">
+
       <div>
         <div class="section-label">Ubicacion en tiempo real</div>
-
         <div class="info-card">
           <div class="info-label">Latitud</div>
           <div class="info-value" id="latVal">Esperando señal...</div>
         </div>
-
         <div class="info-card">
           <div class="info-label">Longitud</div>
           <div class="info-value" id="lonVal">Esperando señal...</div>
         </div>
-
         <div class="info-card">
           <div class="info-label">Ultima actualizacion</div>
           <div class="info-value time" id="timeVal">—</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Geocerca</div>
+        <div class="info-card">
+          <div class="info-label">Estado</div>
+          <div class="info-value estado-neutro" id="estadoVal">Sin geocerca</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">Distancia al centro</div>
+          <div class="info-value time" id="distVal">— m</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-label">Controles</div>
+        <div class="instruccion" id="instruccion">Haz clic en el mapa<br>para agregar vértices</div>
+        <div class="btn-row">
+          <button class="btn-geo blue"  id="btnDibujar">✏ DIBUJAR</button>
+          <button class="btn-geo green" id="btnCerrar"  disabled>✔ CERRAR</button>
+          <button class="btn-geo red"   id="btnLimpiar" disabled>✕ BORRAR</button>
         </div>
       </div>
 
@@ -255,6 +133,7 @@
         Esperando datos del dispositivo.<br>
         Asegurate de que el GPS este activo.
       </div>
+
     </div>
 
     <div class="footer">
@@ -294,45 +173,221 @@
 
   const el = document.createElement('div');
   el.className = 'marker-arrow';
-
-  const marker = new mapboxgl.Marker({
-    element: el,
-    anchor: 'center'
-  })
-  .setLngLat([-68.1239, -16.4809])
-  .addTo(map);
+  const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+    .setLngLat([-68.1239, -16.4809])
+    .addTo(map);
 
   map.on('load', () => {
     document.getElementById('loading').classList.add('hidden');
+    inicializarCapasGeocerca();
   });
 
-  db.collection("Rastreo").doc("Mi_Celular")
-    .onSnapshot((doc) => {
+  // ── Estado de dibujo ──────────────────────────────────────────────────────
+  let modoDibujo    = false;
+  let poligonoListo = false;
+  let puntosPoligono = [];
+  let ultimaPos     = null;
 
-      if (!doc.exists) return;
+  // ── Capas del mapa ────────────────────────────────────────────────────────
+  function inicializarCapasGeocerca() {
+    map.addSource('geocerca-source', { type: 'geojson', data: geometriaVacia() });
+    map.addSource('vertices-source', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addSource('linea-source',    { type: 'geojson', data: geometriaVacia() });
 
-      const data = doc.data();
+    map.addLayer({ id: 'geocerca-relleno', type: 'fill',   source: 'geocerca-source', paint: { 'fill-color': '#3399ff', 'fill-opacity': 0.15 } });
+    map.addLayer({ id: 'geocerca-borde',   type: 'line',   source: 'geocerca-source', paint: { 'line-color': '#3399ff', 'line-width': 2.5 } });
+    map.addLayer({ id: 'linea-layer',      type: 'line',   source: 'linea-source',    paint: { 'line-color': '#3399ff', 'line-width': 2, 'line-dasharray': [2, 1.5] } });
+    map.addLayer({ id: 'vertices-layer',   type: 'circle', source: 'vertices-source', paint: { 'circle-radius': 7, 'circle-color': '#ffffff', 'circle-stroke-width': 2.5, 'circle-stroke-color': '#3399ff' } });
+  }
 
-      const lat  = data.latitud;
-      const lon  = data.longitud;
-      const hora = data.hora?.toDate ? data.hora.toDate() : new Date();
+  function geometriaVacia() {
+    return { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[]] } };
+  }
 
-      document.getElementById('noSignal').style.display = 'none';
+  // ── Clic en el mapa ───────────────────────────────────────────────────────
+  map.on('click', (e) => {
+    if (!modoDibujo) return;
 
-      document.getElementById('latVal').textContent  = lat.toFixed(6);
-      document.getElementById('lonVal').textContent  = lon.toFixed(6);
-      document.getElementById('timeVal').textContent = hora.toLocaleTimeString('es-MX');
+    puntosPoligono.push([e.lngLat.lng, e.lngLat.lat]);
 
-      // SOLO mover el círculo, NO la cámara
-      marker.setLngLat([lon, lat]);
+    if (puntosPoligono.length >= 3) document.getElementById('btnCerrar').disabled = false;
 
-      document.getElementById('statusDot').classList.add('live');
-      document.getElementById('statusText').textContent = 'En vivo';
+    actualizarDibujoParcial();
 
-    }, (error) => {
-      console.error("Error:", error);
-      document.getElementById('statusText').textContent = 'Sin conexion';
+    const n = puntosPoligono.length;
+    document.getElementById('instruccion').innerHTML =
+      n + ' vértice(s) — agrega más o presiona CERRAR';
+  });
+
+  function actualizarDibujoParcial() {
+    const features = puntosPoligono.map(p => ({ type: 'Feature', geometry: { type: 'Point', coordinates: p } }));
+    map.getSource('vertices-source').setData({ type: 'FeatureCollection', features });
+
+    if (puntosPoligono.length >= 2) {
+      map.getSource('linea-source').setData({
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: puntosPoligono }
+      });
+    }
+  }
+
+  // ── Botones ───────────────────────────────────────────────────────────────
+  document.getElementById('btnDibujar').addEventListener('click', () => {
+    modoDibujo    = true;
+    poligonoListo = false;
+    puntosPoligono = [];
+    limpiarCapas();
+
+    document.getElementById('btnCerrar').disabled  = true;
+    document.getElementById('btnLimpiar').disabled = false;
+    document.getElementById('instruccion').style.display = 'block';
+    document.getElementById('instruccion').innerHTML = 'Haz clic en el mapa<br>para agregar vértices';
+    setEstado('Sin geocerca', 'neutro');
+    document.getElementById('distVal').textContent = '— m';
+  });
+
+  document.getElementById('btnCerrar').addEventListener('click', () => {
+    if (puntosPoligono.length < 3) return;
+    modoDibujo    = false;
+    poligonoListo = true;
+
+    dibujarPoligonoFinal();
+
+    document.getElementById('btnCerrar').disabled = true;
+    document.getElementById('instruccion').style.display = 'none';
+
+    if (ultimaPos) verificarGeocerca(ultimaPos.lat, ultimaPos.lon);
+  });
+
+  document.getElementById('btnLimpiar').addEventListener('click', () => {
+    modoDibujo     = false;
+    poligonoListo  = false;
+    puntosPoligono = [];
+    limpiarCapas();
+
+    document.getElementById('btnCerrar').disabled  = true;
+    document.getElementById('btnLimpiar').disabled = true;
+    document.getElementById('instruccion').style.display = 'none';
+    setEstado('Sin geocerca', 'neutro');
+    document.getElementById('distVal').textContent = '— m';
+  });
+
+  function dibujarPoligonoFinal() {
+    limpiarCapas();
+    const coords = [...puntosPoligono, puntosPoligono[0]];
+    map.getSource('geocerca-source').setData({
+      type: 'Feature',
+      geometry: { type: 'Polygon', coordinates: [coords] }
     });
+  }
+
+  function limpiarCapas() {
+    map.getSource('geocerca-source')?.setData(geometriaVacia());
+    map.getSource('vertices-source')?.setData({ type: 'FeatureCollection', features: [] });
+    map.getSource('linea-source')?.setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: [] } });
+  }
+
+  // ── Colores del polígono ──────────────────────────────────────────────────
+  function actualizarColorPoligono(dentro) {
+    const color    = dentro ? '#00ff88' : '#ff4444';
+    const opacidad = dentro ? 0.10      : 0.22;
+    map.setPaintProperty('geocerca-relleno', 'fill-color',   color);
+    map.setPaintProperty('geocerca-relleno', 'fill-opacity', opacidad);
+    map.setPaintProperty('geocerca-borde',   'line-color',   color);
+  }
+
+  // ── Ray Casting ───────────────────────────────────────────────────────────
+  function puntoDentroDePoligono(lat, lon) {
+    if (puntosPoligono.length < 3) return false;
+    let dentro = false;
+    let j = puntosPoligono.length - 1;
+    for (let i = 0; i < puntosPoligono.length; i++) {
+      const xi = puntosPoligono[i][0], yi = puntosPoligono[i][1];
+      const xj = puntosPoligono[j][0], yj = puntosPoligono[j][1];
+      if ((yi > lat) !== (yj > lat) && lon < (xj - xi) * (lat - yi) / (yj - yi) + xi) {
+        dentro = !dentro;
+      }
+      j = i;
+    }
+    return dentro;
+  }
+
+  function calcularDistancia(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function calcularCentroide() {
+    const lat = puntosPoligono.reduce((s, p) => s + p[1], 0) / puntosPoligono.length;
+    const lon = puntosPoligono.reduce((s, p) => s + p[0], 0) / puntosPoligono.length;
+    return { lat, lon };
+  }
+
+  function verificarGeocerca(lat, lon) {
+    if (!poligonoListo) return;
+    const dentro = puntoDentroDePoligono(lat, lon);
+    const c      = calcularCentroide();
+    const dist   = calcularDistancia(lat, lon, c.lat, c.lon);
+
+    setEstado(dentro ? 'DENTRO de la geocerca' : 'FUERA de la geocerca', dentro ? 'dentro' : 'fuera');
+    document.getElementById('distVal').textContent = Math.round(dist) + ' m del centro';
+    actualizarColorPoligono(dentro);
+  }
+
+  function setEstado(texto, tipo) {
+    const el = document.getElementById('estadoVal');
+    el.textContent = texto;
+    el.className   = 'info-value estado-' + tipo;
+  }
+
+  // ── Firebase: escuchar posición del dispositivo ───────────────────────────
+  db.collection("Rastreo").doc("Mi_Celular").onSnapshot((doc) => {
+    if (!doc.exists) return;
+
+    const data = doc.data();
+    const lat  = data.latitud;
+    const lon  = data.longitud;
+    const hora = data.hora?.toDate ? data.hora.toDate() : new Date();
+
+    ultimaPos = { lat, lon };
+
+    document.getElementById('noSignal').style.display = 'none';
+    document.getElementById('latVal').textContent  = lat.toFixed(6);
+    document.getElementById('lonVal').textContent  = lon.toFixed(6);
+    document.getElementById('timeVal').textContent = hora.toLocaleTimeString('es-MX');
+
+    marker.setLngLat([lon, lat]);
+
+    document.getElementById('statusDot').classList.add('live');
+    document.getElementById('statusText').textContent = 'En vivo';
+
+    // Si la app envió un polígono y la web no tiene uno dibujado, cargarlo
+    if (!poligonoListo && data.verticesPoligono && data.verticesPoligono.length > 0) {
+      cargarPoligonoDesdeFirebase(data.verticesPoligono);
+    }
+
+    verificarGeocerca(lat, lon);
+
+  }, () => {
+    document.getElementById('statusText').textContent = 'Sin conexion';
+  });
+
+  // ── Cargar polígono guardado por la app en Firebase ───────────────────────
+  function cargarPoligonoDesdeFirebase(verticesTexto) {
+    if (!verticesTexto || verticesTexto.trim() === '') return;
+    const puntos = verticesTexto.split('|').map(par => {
+      const [lat, lon] = par.split(',').map(Number);
+      return [lon, lat];
+    });
+    if (puntos.length < 3) return;
+
+    puntosPoligono = puntos;
+    poligonoListo  = true;
+    dibujarPoligonoFinal();
+  }
 </script>
 
 </body>
