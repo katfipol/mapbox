@@ -647,22 +647,19 @@
       .catch(err => console.error('Error al borrar:', err));
   }
 
-  // Escuchar geocercas creadas por la app
-  db.collection('GeocercaActiva').doc('geocerca_compartida')
-    .onSnapshot((doc) => {
-      if (!doc.exists) {
-        console.log('No hay geocerca compartida');
-        return;
-      }
+ db.collection('GeocercaActiva').doc('geocerca_compartida')
+  .onSnapshot((doc) => {
 
-      const data = doc.data();
-      
-      // Solo procesar si viene de la app y yo no estoy dibujando
-      if (data.desdeApp && !poligonoListo && !modoDibujo) {
-        console.log('Recibiendo geocerca de la app...');
-        cargarGeocercaDesdeApp(data.vertices, data.nombre);
-      }
-    });
+    if (!doc.exists) return;
+
+    const data = doc.data();
+
+    if (modoDibujo) return; // no interferir si el usuario está dibujando
+
+    console.log("Geocerca recibida desde Firebase");
+
+    cargarGeocercaDesdeApp(data.vertices, data.nombre);
+  });
 
   // Cargar geocerca que hizo la app
   function cargarGeocercaDesdeApp(verticesTexto, nombre) {
